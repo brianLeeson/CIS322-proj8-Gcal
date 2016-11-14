@@ -19,7 +19,7 @@ make configure
 make run  
 
 The default port is 5000. If your are on your own machine connect at localhost:5000.
-If the server is running another machine connect at :5000.
+If the server is running another machine connect at <ipAddress>:5000.
 
 ## Testing the application
 
