@@ -83,31 +83,33 @@ to
           <input type="checkbox", class="checkbox" id="{{cal.id}}" value="{{cal.summary}}"> 
           Include Calendar
           <h3>Calendar {{loop.index}} is {{cal.summary}}</h3>
-
-<!-- Don't display busy times associated with a cal
-	   {% for event in cal.events %}
-                   <div class="row">
-                    <input type="checkbox">
-                    <b>Event: </b> {{ event.summary }} 
-                    <b>Starts: </b> {{ event.eventStart }}
-                    <b>Ends: </b> {{ event.eventEnd }}
-                   </div><br>
-           {% endfor %}
--->
           <br>
   {% endfor %}
   <input type="submit" value="Show Times" id="show_times">
   </div>
 {% endif %}
     
+<!-- Show busy and free times if we have it -->
+{% if g.events is defined  %}
+  {% for day in g.events %}
+    <div class="col">
+    <h3>{{day.weekday}} {{day.date}}</h3>
+    {% for event in day.events %}
+      <div class="row">
+      <input type="checkbox"> <br>
+      <b>Event: </b> {{ event.summary }} <br>
+      <b>Starts: </b> {{ event.eventStart }} <br>
+      <b>Ends: </b> {{ event.eventEnd }} <br>
+      </div>
+      {% endfor %}
+    {% if loop.index is divisibleby 7 %}
+    </div> <div class="row">
+  {% endfor %}
+  </div>
+{% endif %}
+	
+	
   <script>
-/* Do nothing when calendar is clicked
-  $(".header").click(function(event){
-    var str = ".row_" + this.id
-    $(str).toggle();
-});
-*/
-
   $("#show_times").click(function(event){
     var checkBoxes = ${".checkbox"};
     var checkedList = [];
