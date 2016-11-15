@@ -73,6 +73,27 @@ def choose():
     flask.g.calendars = list_calendars(gcal_service)
     return render_template('index.html')
 
+@app.route("/get_times")
+def get_times():
+    """
+    Called when calendars selected
+    Writes busy and free times into flask.#FIXME based of cals selected
+
+    """ 
+    #Get selected cals
+
+    #make service requests for each calendar to get events in date range
+        #process events: (process out:transparency, time range), (process in: free time)
+        #append to ?dic?
+        ##free time an event?
+    
+    #set to g.events to be iterrated over
+
+    #send bogus json
+    return
+
+    flask.g.events = list_events(service)
+
 ####
 #
 #  Google calendar authorization:
@@ -221,6 +242,14 @@ def setrange():
       flask.session['begin_date'], flask.session['end_date'],
       flask.session['begin_time'], flask.session['end_time']))
     return flask.redirect(flask.url_for("choose"))
+
+"""
+@app.route('/get_availability', methods=['POST'])
+def get_avilability():
+    
+    test = request.form.get("calendar")
+    print("test is:", test)
+"""
 
 ####
 #

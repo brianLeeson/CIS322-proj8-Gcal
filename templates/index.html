@@ -33,7 +33,7 @@
 <body>
 <div class="container">
 
-<h1>Busy times</h1>
+<h1>Busy and Free times</h1>
 
 <h2>Date range</h2>
   <form action="/setrange" method="post">
@@ -69,21 +69,22 @@ to
 <input type="time" name="endTime" value="23:59:00">
 
 <br>
-<input type="submit" value="Choose" />
+<input type="submit" value="Choose Calendar" />
 </form>
 
     <!--
     Show the calendar list (if we have it).  This will need to be turned into
     a form from which calendars can be picked. Up to three entries are
-    shown in each row (but the order is across then down; I would
-    prefer down then across). 
+    shown in each row
     -->
 {% if g.calendars is defined  %}
   <div class="row">
   {% for cal in g.calendars if cal.selected %}
-          <input type="checkbox", class = "header" id="{{loop.index}}"> Show Contents
+          <input type="checkbox", class="checkbox" id="{{cal.id}}" value="{{cal.summary}}"> 
+          Include Calendar
           <h3>Calendar {{loop.index}} is {{cal.summary}}</h3>
-          <div class="row_{{loop.index}} hide" name="cal {{loop.index}}" id= "calendar" style = "display:none;">
+
+<!-- Don't display busy times associated with a cal
 	   {% for event in cal.events %}
                    <div class="row">
                     <input type="checkbox">
@@ -92,16 +93,33 @@ to
                     <b>Ends: </b> {{ event.eventEnd }}
                    </div><br>
            {% endfor %}
-          </div><br>
+-->
+          <br>
   {% endfor %}
+  <input type="submit" value="Show Times" id="show_times">
   </div>
 {% endif %}
     
   <script>
+/* Do nothing when calendar is clicked
   $(".header").click(function(event){
     var str = ".row_" + this.id
     $(str).toggle();
 });
+*/
+
+  $("#show_times").click(function(event){
+    var checkBoxes = ${".checkbox"};
+    var checkedList = [];
+    for(var i = 0; i< checkBoxes.length; i++){
+      if(checkBoxes[i].checked){
+          checkedList.push(checkBoxes[i].id);
+        }
+    }
+    $.getJSON("/get_times", { checkedList: checkedList }, function() { location.reload() } )
+
+  });
+
   </script>
 
 
