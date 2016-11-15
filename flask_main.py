@@ -80,19 +80,45 @@ def get_times():
     Writes busy and free times into flask.#FIXME based of cals selected
 
     """ 
+    #get service object
+    service = get_gcal_service(credentials)
+    app.logger.debug("Got service for getting events")
+    
     #Get selected cals
-
+    #TODO: Can we get a list?
+    checkedCal = request.args.get("checkedList", type=li)
+    
     #make service requests for each calendar to get events in date range
         #process events: (process out:transparency, time range), (process in: free time)
-        #append to ?dic?
+        #append to list
         ##free time an event?
     
-    #set to g.events to be iterrated over
+    #TODO: assumes checkedCal is list. Make it a list if it's not.
+    timeBlocks = []
+    for cal in checkedCal:
+        #events is all events in the date range. does not consider time
+        timeMin=flask.session["begin_date"]
+        timeMax=flask.session["end_date"] #google excludes this day in the range
+        timeMax=arrow.get(timeMax).replace(days =+ 1).isoformat() #so we add a day
+        calEvents = service.events().list(calendarId=cal, timeMin=timeMin, timeMax=timeMax).execute()['items']
+        
+        #process events to exclude irrelevent times and add free times
+        calEvents = process(calEvents,
+          flask.session['begin_time'],
+          flask.session['end_time'])
 
-    #send bogus json
-    return
+        #calEvents is now a list of lists, each sub list being a event associated with
+        #that particular cal.
+        
+        timeBlocks.extend(calEvents)
+        
+    #after the for loop timeBlocks should be a list of all free and busy times
+        
+    #set to g.events to be iterrated over    
+    flask.g.events = timeBlocks
 
-    flask.g.events = list_events(service)
+    #send bogus json 
+    return jsonify(result = { "key" : "bogus" })
 
 ####
 #
@@ -243,14 +269,6 @@ def setrange():
       flask.session['begin_time'], flask.session['end_time']))
     return flask.redirect(flask.url_for("choose"))
 
-"""
-@app.route('/get_availability', methods=['POST'])
-def get_avilability():
-    
-    test = request.form.get("calendar")
-    print("test is:", test)
-"""
-
 ####
 #
 #   Initialize session variables 
@@ -351,10 +369,12 @@ def list_calendars(service):
         events = service.events().list(calendarId=cal['id'], timeMin=timeMin, timeMax=timeMax).execute()['items']
         
         #process events to exclude irrelevent times
+        """
+        #we aren't including events with a cal anymore
         events = process(events,
           flask.session['begin_time'],
           flask.session['end_time'])
-
+        """
         kind = cal["kind"]
         id = cal["id"]
         if "description" in cal: 
@@ -374,7 +394,6 @@ def list_calendars(service):
             "selected": selected,
             "primary": primary,
             "description": desc,
-            "events": events
             })
     return sorted(result, key=cal_sort_key)
 
