@@ -88,9 +88,12 @@ to
   <input type="submit" value="Show Times" id="show_times">
   </div>
 {% endif %}
+<!-- hidden field that store which calendars are checked-->
+<div ></div>
     
 <!-- Show busy and free times if we have it -->
 {% if g.events is defined  %}
+  g.events is difined!
   {% for day in g.events %}
     <div class="col">
     <h3>{{day.weekday}} {{day.date}}</h3>
@@ -104,23 +107,31 @@ to
       {% endfor %}
     {% if loop.index is divisibleby 7 %}
     </div> <div class="row">
+    {% endif  %}
   {% endfor %}
   </div>
 {% endif %}
 	
-	
+<div id="target"></div>	
   <script>
   $("#show_times").click(function(event){
-    var checkBoxes = ${".checkbox"};
-    var checkedList = [];
+    console.log("you clicked Show Times")
+    var checkBoxes = $(".checkbox");
+    var checkedList = "";
     for(var i = 0; i< checkBoxes.length; i++){
       if(checkBoxes[i].checked){
-          checkedList.push(checkBoxes[i].id);
+          checkedList= checkedList + checkBoxes[i].id + " ";
         }
     }
-    $.getJSON("/get_times", { checkedList: checkedList }, function() { location.reload() } )
+    $.getJSON("/get_times", { checkedList: checkedList }, function(e) {
+      console.log((e.result))
+      //TODO: clear div before appending
+      e.result.key.forEach(function(element){
+        $("#target").append(element.summary + "<br>");
+      });
+ })
 
-  });
+  })
 
   </script>
 

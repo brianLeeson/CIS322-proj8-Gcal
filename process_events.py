@@ -1,6 +1,6 @@
 import arrow
 
-def process(eventList, rangeStart, rangeEnd):
+def relevantEvents(eventList, rangeStart, rangeEnd):
   """
   arg: a dictionary of events, 
     range start time as string
@@ -9,42 +9,56 @@ def process(eventList, rangeStart, rangeEnd):
     list = [summary,
             startTime,
             endTime]
+  Credit: Sam Oberg helped with the logic for this function
+  """
+
+  inRangeEvents = []
+  for event in eventList:
+    if "transparency" in event:
+      continue
+    if arrow.get(event["end"]["dateTime"]).timetz() < arrow.get(rangeStart).timetz():
+      continue
+    if arrow.get(event["start"]["dateTime"]).timetz() > arrow.get(rangeEnd).timetz():
+      continue 
+    else:
+      inRangeEvents.append(event)
+      #print("event is:", event)
+  return inRangeEvents
+
+def groupByDay(busyEvents):
+  """
+  args: takes a list of busy events
+  ret: list of list of busy events
+    where each item is a day and in each day events are sorted by start time
+  Example:
+    [[{e1},{e2},{e3}], [{},{},{}], ..., [...]]  
   """
   
-  inRangeEvents = []
+  #group by day
 
-  #get just the time as a string
-  rangeStart = arrow.get(rangeStart).time().isoformat()
-  rangeEnd = arrow.get(rangeEnd).time().isoformat()
 
-  for entry in eventList:
-    summary = entry["summary"]
 
-    #all day events. if transparent, not blocking
-    transparent = "not"
-    if "transparency" in entry:
-      transparent = entry["transparency"]
+  #sort each day by start time
 
-    #all day event blocking, or time range event
-    if transparent == "not":  
-      summary = entry["summary"]
-      eventStart = entry["start"]["dateTime"]
-      eventEnd = entry["end"]["dateTime"]
-      
-      #time as a string
-      eventStart = arrow.get(eventStart).time().isoformat()
-      eventEnd = arrow.get(eventEnd).time().isoformat()
 
-      #event occurs inside range
-      insideRange = (eventEnd < rangeEnd) and (eventStart > rangeStart)
-      #event touches start of range
-      beginingRange = (eventStart < rangeStart) and (eventEnd > rangeStart)
-      #event touchs end of range
-      endingRange = (eventStart < rangeEnd) and (eventEnd > rangeEnd)
-      
-      if (insideRange or beginingRange or endingRange):
-        event = {"summary":summary, "eventStart":eventStart, "eventEnd":eventEnd }
-        inRangeEvents.append(event)
 
-  return inRangeEvents
+  return busyEvents
+
+
+def mergeBusy(busyEvents):
+  """
+  args: a list of lists
+  """
+  #TODO
+  return busyEvents
+ 
+def addFree(busyBlocks):
+  """
+   
+  """
+  #TODO
+  return busyBlocks
+
+
+
 

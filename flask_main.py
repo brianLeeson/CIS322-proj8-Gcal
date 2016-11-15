@@ -2,12 +2,13 @@ import flask
 from flask import render_template
 from flask import request
 from flask import url_for
+from flask import jsonify
 import uuid
 
 import json
 import logging
 
-from process_events import process
+from process_events import *
 
 # Date handling 
 import arrow # Replacement for datetime, based on moment.js
@@ -71,6 +72,7 @@ def choose():
     gcal_service = get_gcal_service(credentials)
     app.logger.debug("Returned from get_gcal_service")
     flask.g.calendars = list_calendars(gcal_service)
+    #flask.g.events = [{'summary': 'Dev Club', 'eventStart': '18:00:00', 'eventEnd': '19:00:00'}, {'summary': 'Quantum computing Lawrence 115', 'eventStart': '17:45:00', 'eventEnd': '18:45:00'}]
     return render_template('index.html')
 
 @app.route("/get_times")
@@ -81,12 +83,14 @@ def get_times():
 
     """ 
     #get service object
+    credentials = valid_credentials()
     service = get_gcal_service(credentials)
     app.logger.debug("Got service for getting events")
     
     #Get selected cals
     #TODO: Can we get a list?
-    checkedCal = request.args.get("checkedList", type=li)
+    checkedCal = request.args.get("checkedList", type=str).split()
+    print("checkedCal is:", checkedCal)
     
     #make service requests for each calendar to get events in date range
         #process events: (process out:transparency, time range), (process in: free time)
@@ -94,7 +98,7 @@ def get_times():
         ##free time an event?
     
     #TODO: assumes checkedCal is list. Make it a list if it's not.
-    timeBlocks = []
+    busyEvents = []
     for cal in checkedCal:
         #events is all events in the date range. does not consider time
         timeMin=flask.session["begin_date"]
@@ -103,22 +107,27 @@ def get_times():
         calEvents = service.events().list(calendarId=cal, timeMin=timeMin, timeMax=timeMax).execute()['items']
         
         #process events to exclude irrelevent times and add free times
-        calEvents = process(calEvents,
+        calEvents = relevantEvents(calEvents,
           flask.session['begin_time'],
           flask.session['end_time'])
 
         #calEvents is now a list of lists, each sub list being a event associated with
         #that particular cal.
         
-        timeBlocks.extend(calEvents)
+        busyEvents.extend(calEvents)
+    #after the for loop busyEvents should be a list of all busy events
+    
+    #group by day. sorted in each day
+    groupedEvents = groupByDay(busyEvents)   
+ 
+    #merge busy events into busy blocks
+    busyBlocks = mergeBusy(groupedEvents)
+    
+    #add free times 
+    timeBlocks = addFree(busyBlocks)
         
-    #after the for loop timeBlocks should be a list of all free and busy times
-        
-    #set to g.events to be iterrated over    
-    flask.g.events = timeBlocks
-
     #send bogus json 
-    return jsonify(result = { "key" : "bogus" })
+    return jsonify(result = { "key" : timeBlocks })
 
 ####
 #
