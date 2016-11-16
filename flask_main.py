@@ -125,7 +125,7 @@ def get_times():
     busyBlocks = mergeBusy(groupedEvents)
     
     #add free times 
-    timeBlocks = addFree(busyBlocks)
+    timeBlocks = addFree(busyBlocks, flask.session["begin_time"], flask.session["end_time"])
         
     #send bogus json 
     return jsonify(result = { "key" : timeBlocks })

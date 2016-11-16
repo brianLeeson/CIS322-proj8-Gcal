@@ -29,7 +29,9 @@ def groupByDay(busyEvents):
   """
   args: takes a list of busy events
   ret: list of list of busy events
-    where each item is a day and in each day events are sorted by start time
+    where each item is a day and in each day events are sorted by start time.
+  Notes:
+    Strips event data. Each event only has start and end keys
   Example:
     [[{e1},{e2},{e3}], [{},{},{}], ..., [...]]  
   """
@@ -49,44 +51,84 @@ def groupByDay(busyEvents):
   dayGroup = []
   for i in range(len(busySorted)-1):
     if (busySorted[i+1] == "$"): #if done break
-      dayGroup.append(busySorted[i])
+      event  = {"start": busySorted[i]["start"]["dateTime"], "end": busySorted[i]["end"]["dateTime"]}
+      dayGroup.append(event)
       busyGrouped.append(dayGroup)
       break
       
+    #stip down event
+    event  = {"start": busySorted[i]["start"]["dateTime"], "end": busySorted[i]["end"]["dateTime"]}
     #add it to the day
-    dayGroup.append(busySorted[i])
+    dayGroup.append(event)
     
     #if it's day is different from the next day, append dGroup, dGroup =[]
     if (arrow.get(busySorted[i]["start"]["dateTime"]).day != arrow.get(busySorted[i+1]["start"]["dateTime"]).day):
       busyGrouped.append(dayGroup)
       dayGroup = []
+  
   """
-  print("busyGrouped is:")
+  print("busyGrouped is:", busyGrouped)
   for day in busyGrouped:
     print("day")
     for event in day:
-      print("event summary", event["summary"])
+      print("event start", event["start"])
   """
 
   return busyGrouped
 
 
-def mergeBusy(busyEvents):
+def mergeBusy(groupedEvents):
   """
   events = dict
   args: a list of lists of events
   ret: a list of lists of events, that have over lapping events merged
-    Because of this merging, events will contain only startTime and endTime
+    Events will contain only {"start": startTime, "end": endTime, AND "summary" : "busy"}
+  """
+    
+  mergedBlocks = []  #going to be a list of lists of dicts/busy blocks
+  for day in groupedEvents:
+    mergedDays = []
+    day.append("$") #append dummy
+
+    for i in range(len(day)- 1):
+      #start/end of ith event
+      startTime = day[i]["start"]
+      endTime = day[i]["end"]
+    
+      if (day[i+1] == "$"):  #if at end, break
+        block = {"start": startTime, "end": endTime, "summary": "busy"}
+        mergedDays.append(block)
+        break
+      
+      startTimeNext = day[i+1]["start"]
+      endTimeNext = day[i+1]["end"]
+      
+      #OVERLAPPING
+      #if end of i > start i+1, event is overlapping group the events, place at i+1
+      if (endTime >  startTimeNext):
+        day[i+1] = {"start": startTime, "end": endTimeNext}
+
+      #NON OVERLAPPING
+      #else we've found a non overlapping event, add event as a busy block
+      else:
+        block = {"start": startTime, "end": endTime, "summary": "busy"}
+        mergedDays.append(block)
+
+    mergedBlocks.append(mergedDays) #append the days blocks
+    
+  #print("mergedBlocks is:", mergedBlocks)
+  return mergedBlocks
+ 
+def addFree(busyBlocks, startRange, endRange):
+  """
+  args: busyBlocks: list of list of dicts. List of days of blocks. Each block has a start, end, and summary field
+        startRange/endRange: iso formated strings representing start and end times
+  ret: list of list of dict. adds "free times" and blocks, "summary": "free".
   """
   #TODO
 
-  return busyEvents
- 
-def addFree(busyBlocks):
-  """
-   
-  """
-  #TODO
+  
+
   return busyBlocks
 
 
