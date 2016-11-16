@@ -127,9 +127,50 @@ def addFree(busyBlocks, startRange, endRange):
   """
   #TODO
 
+  freeBusyList = []
+ 
+  for days in busyBlocks:
+    #handle the year, mo, day not being this days' YMD
+    #print("first block:", days[0]["start"])
+    mold = arrow.get(days[0]["start"]) 
+    startRange = arrow.get(startRange).replace(year=mold.year, month=mold.month, day=mold.day).isoformat()
+    endRange = arrow.get(endRange).replace(year=mold.year, month=mold.month, day=mold.day).isoformat()
+
+    dayBlocks = []
+    #if the first event starts after the start of the range, make free block
+    if (startRange < days[0]["start"]):
+      block = {"start": startRange, "end": days[0]["start"], "summary": "free"}
+      dayBlocks.append(block)
+
+    for i in range(len(days)-1):
+      #blocks cannot overlap. get end time of ith block, start time of ith+1 block
+      block = {"start": days[i]["end"],"end": days[i+1]["start"], "summary": "free"}
+      daysBlocks.append(block)
+
+    #if the last event ends before the end of the range, make free block
+    print("bool:", (endRange > days[-1]["end"]))
+    #print("eR:", endRange)
+    #print("last item endTime:", days[-1]["end"])
+    if (endRange > days[-1]["end"]):
+      block = {"start": days[-1]["end"], "end": endRange, "summary": "free"}
+      dayBlocks.append(block) 
+    
+    dayBlocks.extend(days)
+    freeBusyList.append(dayBlocks)   
+
+
+  freeBusySorted = []
+  #sort by start time
+  for day in freeBusyList:
+    daySorted = sorted(day, key=lambda event: event["start"])
+    freeBusySorted.append(daySorted)
+  
+  print("freeBusyList")
+  for item in freeBusySorted:
+    print("item:", item)
   
 
-  return busyBlocks
+  return freeBusySorted
 
 
 
