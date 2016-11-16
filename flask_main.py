@@ -119,7 +119,8 @@ def get_times():
     
     #group by day. sorted in each day
     groupedEvents = groupByDay(busyEvents)   
- 
+    #?Send to be selected?
+
     #merge busy events into busy blocks
     busyBlocks = mergeBusy(groupedEvents)
     

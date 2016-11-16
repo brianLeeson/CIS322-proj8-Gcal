@@ -88,8 +88,6 @@ to
   <input type="submit" value="Show Times" id="show_times">
   </div>
 {% endif %}
-<!-- hidden field that store which calendars are checked-->
-<div ></div>
     
 <!-- Show busy and free times if we have it -->
 {% if g.events is defined  %}
@@ -129,9 +127,8 @@ to
       e.result.key.forEach(function(element){
         $("#target").append(element.summary + "<br>");
       });
- })
-
-  })
+    });
+  });
 
   </script>
 

@@ -22,7 +22,7 @@ def relevantEvents(eventList, rangeStart, rangeEnd):
       continue 
     else:
       inRangeEvents.append(event)
-      #print("event is:", event)
+      print("event start is:", event["start"])
   return inRangeEvents
 
 def groupByDay(busyEvents):
@@ -34,22 +34,52 @@ def groupByDay(busyEvents):
     [[{e1},{e2},{e3}], [{},{},{}], ..., [...]]  
   """
   
+  #sort all events by start time
+  busySorted = sorted(busyEvents, key=lambda event: event["start"]["dateTime"])
+  
+  """  
+  print("should be sorted")
+  for event in busySorted:
+    print("event start is:", event["start"]["dateTime"]) 
+  """
+
   #group by day
+  busySorted.append("$") #append dummy
+  busyGrouped = []
+  dayGroup = []
+  for i in range(len(busySorted)-1):
+    if (busySorted[i+1] == "$"): #if done break
+      dayGroup.append(busySorted[i])
+      busyGrouped.append(dayGroup)
+      break
+      
+    #add it to the day
+    dayGroup.append(busySorted[i])
+    
+    #if it's day is different from the next day, append dGroup, dGroup =[]
+    if (arrow.get(busySorted[i]["start"]["dateTime"]).day != arrow.get(busySorted[i+1]["start"]["dateTime"]).day):
+      busyGrouped.append(dayGroup)
+      dayGroup = []
+  """
+  print("busyGrouped is:")
+  for day in busyGrouped:
+    print("day")
+    for event in day:
+      print("event summary", event["summary"])
+  """
 
-
-
-  #sort each day by start time
-
-
-
-  return busyEvents
+  return busyGrouped
 
 
 def mergeBusy(busyEvents):
   """
-  args: a list of lists
+  events = dict
+  args: a list of lists of events
+  ret: a list of lists of events, that have over lapping events merged
+    Because of this merging, events will contain only startTime and endTime
   """
   #TODO
+
   return busyEvents
  
 def addFree(busyBlocks):
