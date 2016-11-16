@@ -14,6 +14,9 @@ def relevantEvents(eventList, rangeStart, rangeEnd):
 
   inRangeEvents = []
   for event in eventList:
+    print("event is:", event)
+    if "gadget" in event:
+      continue
     if "transparency" in event:
       continue
     if arrow.get(event["end"]["dateTime"]).timetz() < arrow.get(rangeStart).timetz():
@@ -22,7 +25,7 @@ def relevantEvents(eventList, rangeStart, rangeEnd):
       continue 
     else:
       inRangeEvents.append(event)
-      print("event start is:", event["start"])
+      #print("event start is:", event["start"])
   return inRangeEvents
 
 def groupByDay(busyEvents):
@@ -37,12 +40,12 @@ def groupByDay(busyEvents):
   """
   
   #sort all events by start time
-  busySorted = sorted(busyEvents, key=lambda event: event["start"]["dateTime"])
+  busySorted = sorted(busyEvents, key=lambda event: event[0]) 
   
-  """  
+  """
   print("should be sorted")
   for event in busySorted:
-    print("event start is:", event["start"]["dateTime"]) 
+    print("event start is:", event[0]) 
   """
 
   #group by day
@@ -51,18 +54,18 @@ def groupByDay(busyEvents):
   dayGroup = []
   for i in range(len(busySorted)-1):
     if (busySorted[i+1] == "$"): #if done break
-      event  = {"start": busySorted[i]["start"]["dateTime"], "end": busySorted[i]["end"]["dateTime"]}
+      event  = {"start": busySorted[i][0], "end": busySorted[i][1]}
       dayGroup.append(event)
       busyGrouped.append(dayGroup)
       break
       
     #stip down event
-    event  = {"start": busySorted[i]["start"]["dateTime"], "end": busySorted[i]["end"]["dateTime"]}
+    event  = {"start": busySorted[i][0], "end": busySorted[i][1]}
     #add it to the day
     dayGroup.append(event)
     
     #if it's day is different from the next day, append dGroup, dGroup =[]
-    if (arrow.get(busySorted[i]["start"]["dateTime"]).day != arrow.get(busySorted[i+1]["start"]["dateTime"]).day):
+    if (arrow.get(busySorted[i][0]).day != arrow.get(busySorted[i+1][0]).day):
       busyGrouped.append(dayGroup)
       dayGroup = []
   
@@ -145,10 +148,10 @@ def addFree(busyBlocks, startRange, endRange):
     for i in range(len(days)-1):
       #blocks cannot overlap. get end time of ith block, start time of ith+1 block
       block = {"start": days[i]["end"],"end": days[i+1]["start"], "summary": "free"}
-      daysBlocks.append(block)
+      dayBlocks.append(block)
 
     #if the last event ends before the end of the range, make free block
-    print("bool:", (endRange > days[-1]["end"]))
+    #print("bool:", (endRange > days[-1]["end"]))
     #print("eR:", endRange)
     #print("last item endTime:", days[-1]["end"])
     if (endRange > days[-1]["end"]):
@@ -164,6 +167,7 @@ def addFree(busyBlocks, startRange, endRange):
   for day in freeBusyList:
     daySorted = sorted(day, key=lambda event: event["start"])
     freeBusySorted.append(daySorted)
+
   
   print("freeBusyList")
   for item in freeBusySorted:

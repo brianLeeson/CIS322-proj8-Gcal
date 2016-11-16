@@ -90,35 +90,15 @@ def get_times():
     #Get selected cals
     #TODO: Can we get a list?
     checkedCal = request.args.get("checkedList", type=str).split()
-    print("checkedCal is:", checkedCal)
-    
-    #make service requests for each calendar to get events in date range
-        #process events: (process out:transparency, time range), (process in: free time)
-        #append to list
-        ##free time an event?
-    
-    #TODO: assumes checkedCal is list. Make it a list if it's not.
-    busyEvents = []
-    for cal in checkedCal:
-        #events is all events in the date range. does not consider time
-        timeMin=flask.session["begin_date"]
-        timeMax=flask.session["end_date"] #google excludes this day in the range
-        timeMax=arrow.get(timeMax).replace(days =+ 1).isoformat() #so we add a day
-        calEvents = service.events().list(calendarId=cal, timeMin=timeMin, timeMax=timeMax).execute()['items']
-        
-        #process events to exclude irrelevent times and add free times
-        calEvents = relevantEvents(calEvents,
-          flask.session['begin_time'],
-          flask.session['end_time'])
+    splitCal = []
+    for entry in checkedCal:
+        splitCal.append(entry.split(","))
 
-        #calEvents is now a list of lists, each sub list being a event associated with
-        #that particular cal.
-        
-        busyEvents.extend(calEvents)
-    #after the for loop busyEvents should be a list of all busy events
-    
+    print("splitCal is:", splitCal)
+    #splitCal is a list of lists, where each inner list [0]= iso start, [1]= iso end
+
     #group by day. sorted in each day
-    groupedEvents = groupByDay(busyEvents)   
+    groupedEvents = groupByDay(splitCal)   
     #?Send to be selected?
 
     #merge busy events into busy blocks
@@ -127,7 +107,7 @@ def get_times():
     #add free times 
     timeBlocks = addFree(busyBlocks, flask.session["begin_time"], flask.session["end_time"])
         
-    #send bogus json 
+    #send list of lists of dicts containing free/busy blocks to the client to display 
     return jsonify(result = { "key" : timeBlocks })
 
 ####
