@@ -89,7 +89,7 @@ to
                     <div class="row">
                     <input type="checkbox" class="checkbox"
                      value= "{{event.start.dateTime}},{{event.end.dateTime}}">
-                    <b>Event: </b> {{ event.summary }} 
+                    <b>Event: </b> {{ event.summary }} <br> 
                     <b>Starts: </b> {{ event.start.dateTime }}
                     <b>Ends: </b> {{ event.end.dateTime }}
                    </div>
@@ -99,42 +99,7 @@ to
   <input type="submit" value="Show Times" id="show_times">
   </div>
 {% endif %}
-	
-<!-- functioning, obsolete
-{% if g.calendars is defined  %}
-  <div class="row">
-  {% for cal in g.calendars if cal.selected %}
-          <input type="checkbox", class="checkbox" id="{{cal.id}}" value="{{cal.summary}}"> 
-          Include Calendar
-          <h3>Calendar {{loop.index}} is {{cal.summary}}</h3>
-          <br>
-  {% endfor %}
-  <input type="submit" value="Show Times" id="show_times">
-  </div>
-{% endif %}
--->	
     
-<!-- NON FUNCTIONING. Possibly remove. Show busy and free times if we have it -->
-{% if g.events is defined  %}
-  g.events is difined!
-  {% for day in g.events %}
-    <div class="col">
-    <h3>{{day.weekday}} {{day.date}}</h3>
-    {% for event in day.events %}
-      <div class="row">
-      <input type="checkbox"> <br>
-      <b>Event: </b> {{ event.summary }} <br>
-      <b>Starts: </b> {{ event.eventStart }} <br>
-      <b>Ends: </b> {{ event.eventEnd }} <br>
-      </div>
-      {% endfor %}
-    {% if loop.index is divisibleby 7 %}
-    </div> <div class="row">
-    {% endif  %}
-  {% endfor %}
-  </div>
-{% endif %}
-	
 <div id="target"></div>	
   <script>
   $("#show_times").click(function(event){
@@ -150,14 +115,15 @@ to
     console.log("Through loop. Doing AJAX")
     $.getJSON("/get_times", { checkedList: checkedList }, function(e) {
       console.log(e.result.key)
-      //TODO: clear div before appending
-      
+      //clear div before appending
+      $("#target").html("")
       e.result.key.forEach(function(day){
-        $("#target").append("<b>Schedule for the day<b><br>");
+        $("#target").append("<b>Schedule for the day " + day[0].start.substring(5,10) +"</b><br>" );
         day.forEach(function(block){
-          var fbString = ("Time is: "+block.summary+" Start: "+ block.start+" End: "+block.end+"<br>");
+          var fbString = ("<b>Block is: </b>"+block.summary+"<b> Start: </b>"+ block.start.substring(11, 16)+"<b> End: </b>"+block.end.substring(11,16)+"<br>");
           $("#target").append(fbString);
         });
+      $("#target").append("<br>")
       });
     });
   });

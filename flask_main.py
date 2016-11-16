@@ -72,7 +72,6 @@ def choose():
     gcal_service = get_gcal_service(credentials)
     app.logger.debug("Returned from get_gcal_service")
     flask.g.calendars = list_calendars(gcal_service)
-    #flask.g.events = [{'summary': 'Dev Club', 'eventStart': '18:00:00', 'eventEnd': '19:00:00'}, {'summary': 'Quantum computing Lawrence 115', 'eventStart': '17:45:00', 'eventEnd': '18:45:00'}]
     return render_template('index.html')
 
 @app.route("/get_times")
@@ -88,13 +87,12 @@ def get_times():
     app.logger.debug("Got service for getting events")
     
     #Get selected cals
-    #TODO: Can we get a list?
     checkedCal = request.args.get("checkedList", type=str).split()
     splitCal = []
     for entry in checkedCal:
         splitCal.append(entry.split(","))
 
-    print("splitCal is:", splitCal)
+    #print("splitCal is:", splitCal)
     #splitCal is a list of lists, where each inner list [0]= iso start, [1]= iso end
 
     #group by day. sorted in each day
@@ -356,8 +354,14 @@ def list_calendars(service):
         timeMin=flask.session["begin_date"]
         timeMax=flask.session["end_date"] #google excludes this day in the range
         timeMax=arrow.get(timeMax).replace(days =+ 1).isoformat() #so we add a day
+        print("timeMin:", timeMin)
+        print("timeMax:", timeMax)
         events = service.events().list(calendarId=cal['id'], timeMin=timeMin, timeMax=timeMax).execute()['items']
-        
+
+        print("events is:")
+        for event in events:
+            print("event:", event)
+ 
         #process events to exclude irrelevent times
         events = relevantEvents(events,
           flask.session['begin_time'],

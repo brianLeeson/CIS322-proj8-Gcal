@@ -14,7 +14,7 @@ def relevantEvents(eventList, rangeStart, rangeEnd):
 
   inRangeEvents = []
   for event in eventList:
-    print("event is:", event)
+    #print("event is:", event)
     if "gadget" in event:
       continue
     if "transparency" in event:
@@ -99,7 +99,7 @@ def mergeBusy(groupedEvents):
       endTime = day[i]["end"]
     
       if (day[i+1] == "$"):  #if at end, break
-        block = {"start": startTime, "end": endTime, "summary": "busy"}
+        block = {"start": startTime, "end": endTime, "summary": "Busy"}
         mergedDays.append(block)
         break
       
@@ -114,7 +114,7 @@ def mergeBusy(groupedEvents):
       #NON OVERLAPPING
       #else we've found a non overlapping event, add event as a busy block
       else:
-        block = {"start": startTime, "end": endTime, "summary": "busy"}
+        block = {"start": startTime, "end": endTime, "summary": "Busy"}
         mergedDays.append(block)
 
     mergedBlocks.append(mergedDays) #append the days blocks
@@ -142,12 +142,12 @@ def addFree(busyBlocks, startRange, endRange):
     dayBlocks = []
     #if the first event starts after the start of the range, make free block
     if (startRange < days[0]["start"]):
-      block = {"start": startRange, "end": days[0]["start"], "summary": "free"}
+      block = {"start": startRange, "end": days[0]["start"], "summary": "Free"}
       dayBlocks.append(block)
 
     for i in range(len(days)-1):
       #blocks cannot overlap. get end time of ith block, start time of ith+1 block
-      block = {"start": days[i]["end"],"end": days[i+1]["start"], "summary": "free"}
+      block = {"start": days[i]["end"],"end": days[i+1]["start"], "summary": "Free"}
       dayBlocks.append(block)
 
     #if the last event ends before the end of the range, make free block
@@ -155,7 +155,7 @@ def addFree(busyBlocks, startRange, endRange):
     #print("eR:", endRange)
     #print("last item endTime:", days[-1]["end"])
     if (endRange > days[-1]["end"]):
-      block = {"start": days[-1]["end"], "end": endRange, "summary": "free"}
+      block = {"start": days[-1]["end"], "end": endRange, "summary": "Free"}
       dayBlocks.append(block) 
     
     dayBlocks.extend(days)
