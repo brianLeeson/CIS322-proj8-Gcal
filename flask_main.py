@@ -379,12 +379,10 @@ def list_calendars(service):
         events = service.events().list(calendarId=cal['id'], timeMin=timeMin, timeMax=timeMax).execute()['items']
         
         #process events to exclude irrelevent times
-        """
-        #we aren't including events with a cal anymore
-        events = process(events,
+        events = relevantEvents(events,
           flask.session['begin_time'],
           flask.session['end_time'])
-        """
+        
         kind = cal["kind"]
         id = cal["id"]
         if "description" in cal: 
@@ -404,6 +402,7 @@ def list_calendars(service):
             "selected": selected,
             "primary": primary,
             "description": desc,
+            "events": events
             })
     return sorted(result, key=cal_sort_key)
 
