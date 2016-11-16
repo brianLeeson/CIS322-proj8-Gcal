@@ -77,6 +77,28 @@ to
     a form from which calendars can be picked. Up to three entries are
     shown in each row
     -->
+
+{% if g.calendars is defined  %}
+  <div class="row">
+  {% for cal in g.calendars if cal.selected %}
+          <input type="checkbox", class = "header" id="{{loop.index}}"> Show Contents
+          <h3>Calendar {{loop.index}} is {{cal.summary}}</h3>
+          <div class="row_{{loop.index}} hide" name="cal {{loop.index}}" id= "calendar" style = "display:none;">
+	   {% for event in cal.events %}
+                   <div class="row">
+                    <input type="checkbox" syle="checked">
+                    <b>Event: </b> {{ event.summary }} 
+                    <b>Starts: </b> {{ event.eventStart }}
+                    <b>Ends: </b> {{ event.eventEnd }}
+                   </div><br>
+           {% endfor %}
+          </div><br>
+  {% endfor %}
+  <input type="submit" value="Show Times" id="show_times">
+  </div>
+{% endif %}
+	
+<!-- functioning, obsolete
 {% if g.calendars is defined  %}
   <div class="row">
   {% for cal in g.calendars if cal.selected %}
@@ -88,8 +110,9 @@ to
   <input type="submit" value="Show Times" id="show_times">
   </div>
 {% endif %}
+-->	
     
-<!-- Show busy and free times if we have it -->
+<!-- NON FUNCTIONING. Possibly remove. Show busy and free times if we have it -->
 {% if g.events is defined  %}
   g.events is difined!
   {% for day in g.events %}
@@ -129,7 +152,11 @@ to
       });
     });
   });
-
+   
+    $(".header").click(function(event){
+    var str = ".row_" + this.id
+    $(str).toggle();
+  });
   </script>
 
 
