@@ -11,7 +11,11 @@ def relevantEvents(eventList, rangeStart, rangeEnd):
             endTime]
   Credit: Sam Oberg helped with the logic for this function
   """
-
+  """
+  print("eventList is:", eventList)
+  print("rangeStart is:", rangeStart)
+  print("rangeEnd is:", rangeEnd)
+  """
   inRangeEvents = []
   for event in eventList:
     #print("event is:", event)
@@ -26,6 +30,8 @@ def relevantEvents(eventList, rangeStart, rangeEnd):
     else:
       inRangeEvents.append(event)
       #print("event start is:", event["start"])
+
+  #print("inRangeEvents is:", inRangeEvents)
   return inRangeEvents
 
 def groupByDay(busyEvents):
@@ -38,7 +44,9 @@ def groupByDay(busyEvents):
   Example:
     [[{e1},{e2},{e3}], [{},{},{}], ..., [...]]  
   """
-  
+  #print("busyEvents is:", busyEvents)  
+
+
   #sort all events by start time
   busySorted = sorted(busyEvents, key=lambda event: event[0]) 
   
@@ -49,7 +57,7 @@ def groupByDay(busyEvents):
   """
 
   #group by day
-  busySorted.append("$") #append dummy
+  busySorted.append("$") #append sentinel
   busyGrouped = []
   dayGroup = []
   for i in range(len(busySorted)-1):
@@ -76,7 +84,7 @@ def groupByDay(busyEvents):
     for event in day:
       print("event start", event["start"])
   """
-
+  #print("busyGrouped is:", busyGrouped)
   return busyGrouped
 
 
@@ -87,7 +95,7 @@ def mergeBusy(groupedEvents):
   ret: a list of lists of events, that have over lapping events merged
     Events will contain only {"start": startTime, "end": endTime, AND "summary" : "busy"}
   """
-    
+  #print("groupedEvents is:", groupedEvents)  
   mergedBlocks = []  #going to be a list of lists of dicts/busy blocks
   for day in groupedEvents:
     mergedDays = []
@@ -128,8 +136,9 @@ def addFree(busyBlocks, startRange, endRange):
         startRange/endRange: iso formated strings representing start and end times
   ret: list of list of dict. adds "free times" and blocks, "summary": "free".
   """
-  #TODO
-
+  print("busyBlocks is:", busyBlocks)
+  print("startRange is", startRange)
+  print("endRange is:", endRange)
   freeBusyList = []
  
   for days in busyBlocks:
@@ -168,12 +177,12 @@ def addFree(busyBlocks, startRange, endRange):
     daySorted = sorted(day, key=lambda event: event["start"])
     freeBusySorted.append(daySorted)
 
-  
+  """
   print("freeBusyList")
   for item in freeBusySorted:
     print("item:", item)
-  
-
+  """
+  print("freeBusySorted:", freeBusySorted)
   return freeBusySorted
 
 

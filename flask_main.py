@@ -354,14 +354,15 @@ def list_calendars(service):
         timeMin=flask.session["begin_date"]
         timeMax=flask.session["end_date"] #google excludes this day in the range
         timeMax=arrow.get(timeMax).replace(days =+ 1).isoformat() #so we add a day
-        print("timeMin:", timeMin)
-        print("timeMax:", timeMax)
-        events = service.events().list(calendarId=cal['id'], timeMin=timeMin, timeMax=timeMax).execute()['items']
-
+        #print("timeMin:", timeMin)
+        #print("timeMax:", timeMax)
+        events = service.events().list(calendarId=cal['id'], timeMin=timeMin, timeMax=timeMax, singleEvents=True).execute()['items']
+        """
         print("events is:")
         for event in events:
             print("event:", event)
- 
+        """ 
+
         #process events to exclude irrelevent times
         events = relevantEvents(events,
           flask.session['begin_time'],

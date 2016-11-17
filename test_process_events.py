@@ -1,22 +1,69 @@
-from process_events import process
+from process_events import *
 
-def test_process():
+def test_relevantEvents():
   
   #Test 1 - normal. 1 event provided, 1 event created
-  eventList = [{'iCalUID': 'vv0pm3po9mbr4ggnvgvgh76pv8@google.com', 'reminders': {'useDefault': True}, 'updated': '2016-10-14T01:11:07.428Z', 'creator': {'displayName': 'Brian Leeson', 'email': 'cyberjunkie09@gmail.com', 'self': True}, 'id': 'vv0pm3po9mbr4ggnvgvgh76pv8', 'htmlLink': 'https://www.google.com/calendar/event?eid=dnYwcG0zcG85bWJyNGdnbnZndmdoNzZwdjhfMjAxNjEwMDdUMDEwMDAwWiBjeWJlcmp1bmtpZTA5QG0', 'start': {'timeZone': 'America/Los_Angeles', 'dateTime': '2016-10-06T18:00:00-07:00'}, 'status': 'confirmed', 'recurrence': ['RRULE:FREQ=WEEKLY;WKST=MO;COUNT=10;BYDAY=TH'], 'kind': 'calendar#event', 'sequence': 1, 'etag': '"2952814934856000"', 'end': {'timeZone': 'America/Los_Angeles', 'dateTime': '2016-10-06T19:00:00-07:00'}, 'created': '2016-10-05T23:17:40.000Z', 'organizer': {'displayName': 'Brian Leeson', 'email': 'cyberjunkie09@gmail.com', 'self': True}, 'summary': 'Dev Club'}]
+  eventList = [{'organizer': {'email': 'cyberjunkie09@gmail.com', 'self': True, 'displayName': 'Brian Leeson'}, 'kind': 'calendar#event', 'id': '64o6cob56tj62b9hckqm8b9k71h62b9o6oq3cb9n6so62o9j61hj6ohp6g', 'start': {'timeZone': 'America/Los_Angeles', 'dateTime': '2016-11-16T06:00:00-08:00'}, 'updated': '2016-11-15T21:42:03.235Z', 'htmlLink': 'https://www.google.com/calendar/event?eid=NjRvNmNvYjU2dGo2MmI5aGNrcW04YjlrNzFoNjJiOW82b3EzY2I5bjZzbzYybzlqNjFoajZvaHA2ZyBjeWJlcmp1bmtpZTA5QG0', 'sequence': 0, 'summary': 'Running', 'creator': {'email': 'cyberjunkie09@gmail.com', 'self': True, 'displayName': 'Brian Leeson'}, 'iCalUID': '64o6cob56tj62b9hckqm8b9k71h62b9o6oq3cb9n6so62o9j61hj6ohp6g@google.com', 'etag': '"2958492246350000"', 'reminders': {'overrides': [{'method': 'popup', 'minutes': 30}], 'useDefault': False}, 'end': {'timeZone': 'America/Los_Angeles', 'dateTime': '2016-11-16T07:00:00-08:00'}, 'created': '2016-11-15T21:42:03.000Z', 'status': 'confirmed'}]
   rangeStart = "2016-01-01T00:00:00-08:00"
   rangeEnd = "2016-01-01T23:59:00-08:00"
-  assert( process(eventList, rangeStart, rangeEnd)== [{'eventEnd': '19:00:00', 'summary': 'Dev Club', 'eventStart': '18:00:00'}])
+  result = [{'organizer': {'email': 'cyberjunkie09@gmail.com', 'self': True, 'displayName': 'Brian Leeson'}, 'kind': 'calendar#event', 'id': '64o6cob56tj62b9hckqm8b9k71h62b9o6oq3cb9n6so62o9j61hj6ohp6g', 'start': {'timeZone': 'America/Los_Angeles', 'dateTime': '2016-11-16T06:00:00-08:00'}, 'updated': '2016-11-15T21:42:03.235Z', 'htmlLink': 'https://www.google.com/calendar/event?eid=NjRvNmNvYjU2dGo2MmI5aGNrcW04YjlrNzFoNjJiOW82b3EzY2I5bjZzbzYybzlqNjFoajZvaHA2ZyBjeWJlcmp1bmtpZTA5QG0', 'sequence': 0, 'summary': 'Running', 'creator': {'email': 'cyberjunkie09@gmail.com', 'self': True, 'displayName': 'Brian Leeson'}, 'iCalUID': '64o6cob56tj62b9hckqm8b9k71h62b9o6oq3cb9n6so62o9j61hj6ohp6g@google.com', 'etag': '"2958492246350000"', 'reminders': {'overrides': [{'method': 'popup', 'minutes': 30}], 'useDefault': False}, 'end': {'timeZone': 'America/Los_Angeles', 'dateTime': '2016-11-16T07:00:00-08:00'}, 'created': '2016-11-15T21:42:03.000Z', 'status': 'confirmed'}]
+  assert( relevantEvents(eventList, rangeStart, rangeEnd)== result)
 
   #Test 2 - null. no event
   eventList = []
   rangeStart = "2016-01-01T00:00:00-08:00"
   rangeEnd = "2016-01-01T23:59:00-08:00" 
-  assert( process(eventList, rangeStart, rangeEnd) == [] ) 
+  assert(relevantEvents(eventList, rangeStart, rangeEnd) == [] ) 
+   
+def test_groupByDay():
 
-  #Test 3 - out of range. event provided out of range
-  eventList = [{'recurrence': ['RRULE:FREQ=WEEKLY;WKST=MO;COUNT=10;BYDAY=TH'], 'iCalUID': 'vv0pm3po9mbr4ggnvgvgh76pv8@google.com', 'id': 'vv0pm3po9mbr4ggnvgvgh76pv8', 'end': {'timeZone': 'America/Los_Angeles', 'dateTime': '2016-10-06T19:00:00-07:00'}, 'creator': {'email': 'cyberjunkie09@gmail.com', 'displayName': 'Brian Leeson', 'self': True}, 'kind': 'calendar#event', 'summary': 'Dev Club', 'status': 'confirmed', 'sequence': 1, 'updated': '2016-10-14T01:11:07.428Z', 'organizer': {'email': 'cyberjunkie09@gmail.com', 'displayName': 'Brian Leeson', 'self': True}, 'htmlLink': 'https://www.google.com/calendar/event?eid=dnYwcG0zcG85bWJyNGdnbnZndmdoNzZwdjhfMjAxNjEwMDdUMDEwMDAwWiBjeWJlcmp1bmtpZTA5QG0', 'reminders': {'useDefault': True}, 'etag': '"2952814934856000"', 'start': {'timeZone': 'America/Los_Angeles', 'dateTime': '2016-10-06T18:00:00-07:00'}, 'created': '2016-10-05T23:17:40.000Z'}]
-  rangeStart = "2016-01-01T00:00:00-08:00"
-  rangeEnd = "2016-01-01T11:59:00-08:00"
-  assert(process(eventList, rangeStart, rangeEnd) == [])
+  #Test 1 - null. no events
+  assert(groupByDay([])==[])
+
+  #Test 2 - Single event
+  bEvents = [['2016-11-16T06:00:00-08:00', '2016-11-16T07:00:00-08:00']]
+  bGrouped = [[{'start': '2016-11-16T06:00:00-08:00', 'end': '2016-11-16T07:00:00-08:00'}]]
+  assert(groupByDay(bEvents) == bGrouped)
+
+  #Test 3 - Multiple days
+  bEvents = [['2016-11-17T18:00:00-08:00', '2016-11-17T19:00:00-08:00'], ['2016-11-17T17:45:00-08:00', '2016-11-17T18:45:00-08:00'], ['2016-11-16T06:00:00-08:00', '2016-11-16T07:00:00-08:00']]
+  bGrouped = [[{'end': '2016-11-16T07:00:00-08:00', 'start': '2016-11-16T06:00:00-08:00'}], [{'end': '2016-11-17T18:45:00-08:00', 'start': '2016-11-17T17:45:00-08:00'}, {'end': '2016-11-17T19:00:00-08:00', 'start': '2016-11-17T18:00:00-08:00'}]]
+  assert(groupByDay(bEvents) == bGrouped)
+  
+def test_mergeBusy():
+
+  #Test1 - multiple events. some needed merging
+  gEvents = [[{'end': '2016-11-16T07:00:00-08:00', 'start': '2016-11-16T06:00:00-08:00'}], [{'end': '2016-11-17T18:45:00-08:00', 'start': '2016-11-17T17:45:00-08:00'}, {'end': '2016-11-17T19:00:00-08:00', 'start': '2016-11-17T18:00:00-08:00'}]]
+  mBlocks = [[{'end': '2016-11-16T07:00:00-08:00', 'start': '2016-11-16T06:00:00-08:00', 'summary': 'Busy'}], [{'end': '2016-11-17T19:00:00-08:00', 'start': '2016-11-17T17:45:00-08:00', 'summary': 'Busy'}]]
+  assert(mergeBusy(gEvents) == mBlocks)
+
+  #Test2 - null. no events
+  gEvents = []
+  mBlocks = []
+  assert(mergeBusy(gEvents) == mBlocks)
+
+
+def test_addFree():
+  #Test1 - null
+  bBlocks = []
+  sRange = "2016-01-01T00:00:00-08:00"
+  eRange = "2016-01-01T23:59:00-08:00"
+  fBSorted = []
+  assert(addFree(bBlocks, sRange, eRange) == fBSorted)
+
+  bBlocks = [[{'end': '2016-11-17T19:00:00-08:00', 'summary': 'Busy', 'start': '2016-11-17T17:45:00-08:00'}]]
+  sRange = "2016-01-01T00:00:00-08:00"
+  eRange = "2016-01-01T23:59:00-08:00"
+  fBSorted = [[{'end': '2016-11-17T17:45:00-08:00', 'summary': 'Free', 'start': '2016-11-17T00:00:00-08:00'}, {'end': '2016-11-17T19:00:00-08:00', 'summary': 'Busy', 'start': '2016-11-17T17:45:00-08:00'}, {'end': '2016-11-17T23:59:00-08:00', 'summary': 'Free', 'start': '2016-11-17T19:00:00-08:00'}]]
+  assert(addFree(bBlocks, sRange, eRange == fBSorted))
+
+  bBlocks = [[{'end': '2016-11-15T13:15:00-08:00', 'summary': 'Busy', 'start': '2016-11-15T12:15:00-08:00'}, {'end': '2016-11-15T17:00:00-08:00', 'summary': 'Busy', 'start': '2016-11-15T16:00:00-08:00'}], [{'end': '2016-11-16T07:00:00-08:00', 'summary': 'Busy', 'start': '2016-11-16T06:00:00-08:00'}], [{'end': '2016-11-17T19:00:00-08:00', 'summary': 'Busy', 'start': '2016-11-17T17:45:00-08:00'}]]
+  sRange = "2016-01-01T00:00:00-08:00"
+  eRange = "2016-01-01T23:59:00-08:00"
+  fBSorted = [[{'end': '2016-11-15T12:15:00-08:00', 'summary': 'Free', 'start': '2016-11-15T00:00:00-08:00'}, {'end': '2016-11-15T13:15:00-08:00', 'summary': 'Busy', 'start': '2016-11-15T12:15:00-08:00'}, {'end': '2016-11-15T16:00:00-08:00', 'summary': 'Free', 'start': '2016-11-15T13:15:00-08:00'}, {'end': '2016-11-15T17:00:00-08:00', 'summary': 'Busy', 'start': '2016-11-15T16:00:00-08:00'}, {'end': '2016-11-15T23:59:00-08:00', 'summary': 'Free', 'start': '2016-11-15T17:00:00-08:00'}], [{'end': '2016-11-16T06:00:00-08:00', 'summary': 'Free', 'start': '2016-11-16T00:00:00-08:00'}, {'end': '2016-11-16T07:00:00-08:00', 'summary': 'Busy', 'start': '2016-11-16T06:00:00-08:00'}, {'end': '2016-11-16T23:59:00-08:00', 'summary': 'Free', 'start': '2016-11-16T07:00:00-08:00'}], [{'end': '2016-11-17T17:45:00-08:00', 'summary': 'Free', 'start': '2016-11-17T00:00:00-08:00'}, {'end': '2016-11-17T19:00:00-08:00', 'summary': 'Busy', 'start': '2016-11-17T17:45:00-08:00'}, {'end': '2016-11-17T23:59:00-08:00', 'summary': 'Free', 'start': '2016-11-17T19:00:00-08:00'}]]
+  assert(addFree(bBlocks, sRange, eRange == fBSorted))
+
+
+
+
 

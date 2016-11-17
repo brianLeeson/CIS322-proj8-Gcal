@@ -103,7 +103,7 @@ to
 <div id="target"></div>	
   <script>
   $("#show_times").click(function(event){
-    console.log("you clicked Show Times")
+    //console.log("you clicked Show Times")
     var checkBoxes = $(".checkbox");
     //console.log("list of checked boxes: " + checkBoxes)
     var checkedList = "";
@@ -112,9 +112,8 @@ to
           checkedList= checkedList + checkBoxes[i].value + " ";
         }
     }
-    console.log("Through loop. Doing AJAX")
+    //console.log("Through loop. Doing AJAX")
     $.getJSON("/get_times", { checkedList: checkedList }, function(e) {
-      console.log(e.result.key)
       //clear div before appending
       $("#target").html("")
       e.result.key.forEach(function(day){
