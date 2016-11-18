@@ -4,6 +4,7 @@ Skeleton code created by instructor: Michael Young
 
 ## What is here
 A simple webpage that finds potentially busy and free times in a specific date and time range. <br>
+Project is incomplete pending the completion of proj9. Debugging code commented out for proj9. <br>
 
 ## Installation and running
 Project only runnable with client_secrets.py, admin_secrets.py, and client_secret.json not included in the repo.
