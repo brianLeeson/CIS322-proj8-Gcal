@@ -130,7 +130,7 @@ def mergeBusy(groupedEvents):
   #print("mergedBlocks is:", mergedBlocks)
   return mergedBlocks
  
-def addFree(busyBlocks, startRange, endRange):
+def addFree(busyBlocks, startRange, endRange, startDate, endDate):
   """
   args: busyBlocks: list of list of dicts. List of days of blocks. Each block has a start, end, and summary field
         startRange/endRange: iso formated strings representing start and end times
@@ -140,23 +140,43 @@ def addFree(busyBlocks, startRange, endRange):
   #print("startRange is", startRange)
   #print("endRange is:", endRange)
   freeBusyList = []
- 
-  for days in busyBlocks:
-    #handle the year, mo, day not being this days' YMD
-    #print("first block:", days[0]["start"])
-    mold = arrow.get(days[0]["start"]) 
-    startRange = arrow.get(startRange).replace(year=mold.year, month=mold.month, day=mold.day).isoformat()
-    endRange = arrow.get(endRange).replace(year=mold.year, month=mold.month, day=mold.day).isoformat()
 
+  #find how many days we are covering
+  startDate = arrow.get(startDate)
+  endDate = arrow.get(endDate)
+  diff = endDate - startDate
+  print(diff.days)
+
+  index = 0
+  numDays = len(diff.days)
+  while (index < numDays):
+    
+    days = busyBlocks[index]
+    mold = arrow.get(days[0]["start"])
+    #handle the year, mo, day not being this days' YMD
+    startRange = arrow.get(startRange).replace(year=startDate.year, month=startDate.month, day=startDate.day).isoformat()
+    endRange = arrow.get(endRange).replace(year=endDate.year, month=endDate.month, day=endDate.day).isoformat()
     dayBlocks = []
+ 
+    #if the day is not the same day on the range we are looking at, add free block for the day.
+    #day with no busy blocks
+    if (mold.day != startDate.day):
+      block = {"start": startRange, "end": endRange, "summary": "Free"}
+      dayBlocks.append(block)
+      
+      #increase counters and days
+      index+=1
+      startDate.replace(days=+1)
+      endDate.replace(days=+1)
+
     #if the first event starts after the start of the range, make free block
-    if (startRange < days[0]["start"]):
+    elif (startRange < days[0]["start"]):
       block = {"start": startRange, "end": days[0]["start"], "summary": "Free"}
       dayBlocks.append(block)
 
     for i in range(len(days)-1):
       #blocks cannot overlap. get end time of ith block, start time of ith+1 block
-      block = {"start": days[i]["end"],"end": days[i+1]["start"], "summary": "Free"}
+      block = {"start": [i]["end"],"end": days[i+1]["start"], "summary": "Free"}
       dayBlocks.append(block)
 
     #if the last event ends before the end of the range, make free block

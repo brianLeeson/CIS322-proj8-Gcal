@@ -103,7 +103,7 @@ def get_times():
     busyBlocks = mergeBusy(groupedEvents)
     
     #add free times 
-    timeBlocks = addFree(busyBlocks, flask.session["begin_time"], flask.session["end_time"])
+    timeBlocks = addFree(busyBlocks, flask.session["begin_time"], flask.session["end_time"], flask.session["begin_date"], flask.session["end_date"])
         
     #send list of lists of dicts containing free/busy blocks to the client to display 
     return jsonify(result = { "key" : timeBlocks })
