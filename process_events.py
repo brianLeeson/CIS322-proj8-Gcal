@@ -148,29 +148,33 @@ def addFree(busyBlocks, startRange, endRange, startDate, endDate):
   print(diff.days)
 
   index = 0
+  bbIndex = 0
   numDays = len(diff.days)
   while (index < numDays):
     
-    days = busyBlocks[index]
+    #get ith element
+    days = busyBlocks[bbIndex]
+    #get
     mold = arrow.get(days[0]["start"])
     #handle the year, mo, day not being this days' YMD
     startRange = arrow.get(startRange).replace(year=startDate.year, month=startDate.month, day=startDate.day).isoformat()
-    endRange = arrow.get(endRange).replace(year=endDate.year, month=endDate.month, day=endDate.day).isoformat()
+    endRange = arrow.get(endRange).replace(year=startDate.year, month=startDate.month, day=startDate.day).isoformat()
     dayBlocks = []
- 
+
     #if the day is not the same day on the range we are looking at, add free block for the day.
     #day with no busy blocks
     if (mold.day != startDate.day):
       block = {"start": startRange, "end": endRange, "summary": "Free"}
       dayBlocks.append(block)
+      freeBusyList.append(dayBlocks)
       
       #increase counters and days
       index+=1
       startDate.replace(days=+1)
-      endDate.replace(days=+1)
-
+      continue
+      
     #if the first event starts after the start of the range, make free block
-    elif (startRange < days[0]["start"]):
+    if (startRange < days[0]["start"]):
       block = {"start": startRange, "end": days[0]["start"], "summary": "Free"}
       dayBlocks.append(block)
 
@@ -180,16 +184,15 @@ def addFree(busyBlocks, startRange, endRange, startDate, endDate):
       dayBlocks.append(block)
 
     #if the last event ends before the end of the range, make free block
-    #print("bool:", (endRange > days[-1]["end"]))
-    #print("eR:", endRange)
-    #print("last item endTime:", days[-1]["end"])
     if (endRange > days[-1]["end"]):
       block = {"start": days[-1]["end"], "end": endRange, "summary": "Free"}
       dayBlocks.append(block) 
     
     dayBlocks.extend(days)
     freeBusyList.append(dayBlocks)   
-
+    index+=1
+    startDate.replace(days=+1)
+    bbIndex+=1
 
   freeBusySorted = []
   #sort by start time
