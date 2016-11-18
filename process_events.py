@@ -136,9 +136,9 @@ def addFree(busyBlocks, startRange, endRange):
         startRange/endRange: iso formated strings representing start and end times
   ret: list of list of dict. adds "free times" and blocks, "summary": "free".
   """
-  print("busyBlocks is:", busyBlocks)
-  print("startRange is", startRange)
-  print("endRange is:", endRange)
+  #print("busyBlocks is:", busyBlocks)
+  #print("startRange is", startRange)
+  #print("endRange is:", endRange)
   freeBusyList = []
  
   for days in busyBlocks:
@@ -182,7 +182,7 @@ def addFree(busyBlocks, startRange, endRange):
   for item in freeBusySorted:
     print("item:", item)
   """
-  print("freeBusySorted:", freeBusySorted)
+  #print("freeBusySorted:", freeBusySorted)
   return freeBusySorted
 
 
