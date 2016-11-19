@@ -130,7 +130,7 @@ def mergeBusy(groupedEvents):
   #print("mergedBlocks is:", mergedBlocks)
   return mergedBlocks
  
-def addFree(busyBlocks, startRange, endRange, startDate, endDate):
+def addFree(busyBlocks, startTime, endTime, startDate, endDate):
   """
   args: busyBlocks: list of list of dicts. List of days of blocks. Each block has a start, end, and summary field
         startRange/endRange: iso formated strings representing start and end times
@@ -143,57 +143,60 @@ def addFree(busyBlocks, startRange, endRange, startDate, endDate):
 
   #find how many days we are covering
   startDate = arrow.get(startDate)
-  endDate = arrow.get(endDate)
-  diff = endDate - startDate
-  print(diff.days)
+  endDate = arrow.get(endDate).replace(days=+1) #include final day
+  diff = endDate.day - startDate.day
+ 
+  ithStart = startDate.replace(hour=arrow.get(startTime).hour, minute=arrow.get(startTime).minute)  
+  ithEnd = startDate.replace(hour=arrow.get(endTime).hour, minute=arrow.get(endTime).minute) 
 
-  index = 0
+  dayIndex = 0
   bbIndex = 0
-  numDays = len(diff.days)
-  while (index < numDays):
-    
-    #get ith element
-    days = busyBlocks[bbIndex]
-    #get
-    mold = arrow.get(days[0]["start"])
-    #handle the year, mo, day not being this days' YMD
-    startRange = arrow.get(startRange).replace(year=startDate.year, month=startDate.month, day=startDate.day).isoformat()
-    endRange = arrow.get(endRange).replace(year=startDate.year, month=startDate.month, day=startDate.day).isoformat()
-    dayBlocks = []
-
-    #if the day is not the same day on the range we are looking at, add free block for the day.
-    #day with no busy blocks
-    if (mold.day != startDate.day):
-      block = {"start": startRange, "end": endRange, "summary": "Free"}
-      dayBlocks.append(block)
-      freeBusyList.append(dayBlocks)
+  freeBusyList = []
+  bbDay = arrow.get(busyBlocks[bbIndex][0]["start"])
+  
+  while(dayIndex<diff):
+    dayBlocks = [] 
+    bbDay = arrow.get(busyBlocks[bbIndex][0]["start"])
+    #Case: day has no events
+    #if currDay != ith day: make free block of day
+    if (bbDay.date() != ithStart.date()): #found clear day
+      print("found clear day")
       
-      #increase counters and days
-      index+=1
-      startDate.replace(days=+1)
-      continue
-      
-    #if the first event starts after the start of the range, make free block
-    if (startRange < days[0]["start"]):
-      block = {"start": startRange, "end": days[0]["start"], "summary": "Free"}
+      block = {"start": ithStart.isoformat(), "end": ithEnd.isoformat(), "summary": "Free"}
       dayBlocks.append(block)
-
-    for i in range(len(days)-1):
-      #blocks cannot overlap. get end time of ith block, start time of ith+1 block
-      block = {"start": [i]["end"],"end": days[i+1]["start"], "summary": "Free"}
-      dayBlocks.append(block)
-
-    #if the last event ends before the end of the range, make free block
-    if (endRange > days[-1]["end"]):
-      block = {"start": days[-1]["end"], "end": endRange, "summary": "Free"}
-      dayBlocks.append(block) 
     
-    dayBlocks.extend(days)
-    freeBusyList.append(dayBlocks)   
-    index+=1
-    startDate.replace(days=+1)
-    bbIndex+=1
+    #Else: has has events
+    else:
+      day = busyBlocks[bbIndex]
+   
+      #Case: start of day
+      if (day[0]["start"] > ithStart.isoformat()):
+        block = {"start": ithStart.isoformat(), "end": day[0]["start"], "summary": "Free"}
+        dayBlocks.append(block)
 
+      #Case: middle of day. loop over event in the day
+      for i in range(len(day)-1):
+        #blocks cannot overlap. get end time of ith block, start time of ith+1 block
+        block = {"start": day[i]["end"],"end": day[i+1]["start"], "summary": "Free"}
+        dayBlocks.append(block)
+
+      #Case: end of day
+      if (day[0]["end"] < ithEnd.isoformat()):
+        block = {"start": day[0]["end"], "end": ithEnd.isoformat(), "summary": "Free"}
+        dayBlocks.append(block)
+      
+      dayBlocks.extend(day)
+      #if we've processed a day, increment the day counter
+      if (bbIndex < len(busyBlocks)-1):
+        bbIndex+=1
+        bbDay = arrow.get(busyBlocks[bbIndex][0]["start"])
+
+    #increment ithStart/ithEnd and day index
+    ithStart = ithStart.replace(days=+1)
+    ithEnd = ithEnd.replace(days=+1)
+    dayIndex+=1
+    freeBusyList.append(dayBlocks)
+ 
   freeBusySorted = []
   #sort by start time
   for day in freeBusyList:
