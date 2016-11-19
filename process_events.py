@@ -137,8 +137,10 @@ def addFree(busyBlocks, startTime, endTime, startDate, endDate):
   ret: list of list of dict. adds "free times" and blocks, "summary": "free".
   """
   #print("busyBlocks is:", busyBlocks)
-  #print("startRange is", startRange)
-  #print("endRange is:", endRange)
+  #print("sTime is:", startTime)
+  #print("eTime is:", endTime)
+  #print("sDate is:", startDate)
+  #print("eDate is:", endDate)
   freeBusyList = []
 
   #find how many days we are covering
@@ -152,16 +154,15 @@ def addFree(busyBlocks, startTime, endTime, startDate, endDate):
   dayIndex = 0
   bbIndex = 0
   freeBusyList = []
-  bbDay = arrow.get(busyBlocks[bbIndex][0]["start"])
+  
+  if(len(busyBlocks)):
+    bbDay = arrow.get(busyBlocks[bbIndex][0]["start"])
   
   while(dayIndex<diff):
     dayBlocks = [] 
-    bbDay = arrow.get(busyBlocks[bbIndex][0]["start"])
     #Case: day has no events
     #if currDay != ith day: make free block of day
-    if (bbDay.date() != ithStart.date()): #found clear day
-      print("found clear day")
-      
+    if ((len(busyBlocks) == 0) or (bbDay.date() != ithStart.date())): #found clear day
       block = {"start": ithStart.isoformat(), "end": ithEnd.isoformat(), "summary": "Free"}
       dayBlocks.append(block)
     
