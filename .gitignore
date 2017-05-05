@@ -7,6 +7,7 @@ static/js/*.min.js
 .goog_app_key.json
 *~
 *.swp
+Makefile.local
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
